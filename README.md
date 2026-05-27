@@ -6,13 +6,13 @@
 
 
 ## Fonctionnalités 
-* **Clic Gauche (Maintenir & Glisser) :** Attraper et déplacer les points du tissu pour créer des tensions.
-* **Clic Droit :** Trancher les liens du tissu en passant la souris dessus (effet de découpe).
-* **Touche ÉCHAP :** Quitter l'application (version Python).
+* **Clic Gauche (Maintenir & Glisser) :** Attraper et déplacer les points du tissu pour créer des tensions
+* **Clic Droit :** Trancher les liens du tissu en passant la souris dessus (effet de découpe)
+* **Touche ÉCHAP :** Quitter l'application (version Python)
 
 
 ## Fichiers
 
 
 * **`filet.py`'** : Le code source Python d'origine utilisant `pygame`. ( > pip install pygame)
-* **`index.html`** : La version web adaptative réécrite en JavaScript avec `p5.js`. C'est ce fichier qui propulse la page GitHub 
+* **`index.html`** : La version web adaptative réécrite en JavaScript 
