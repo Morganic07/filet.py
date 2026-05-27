@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulation de Tissu (Verlet)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #00050a;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<script>
+let P = []; 
+let S = []; 
+
+function setup() {
+    // Canvas plein écran adaptatif
+    createCanvas(windowWidth, windowHeight);
+    
+    // Création des points (P)
+    for (let y = 0; y < 30; y++) {
+        for (let x = 0; x < 50; x++) {
+            let pos_x = x * 20 + windowWidth / 4;
+            let pos_y = y * 20 + 100;
+            P.push({
+                x: pos_x,
+                y: pos_y,
+                old_x: pos_x,
+                old_y: pos_y,
+                is_fixed: (y === 0)
+            });
+        }
+    }
+
+    // Création des segments/liens (S)
+    for (let i = 0; i < P.length; i++) {
+        if ((i + 1) % 50 !== 0) {
+            S.push([i, i + 1, true]);
+        }
+        if (i + 50 < P.length) {
+            S.push([i, i + 50, true]);
+        }
+    }
+}
+
+function draw() {
+    background(0, 5, 10); // Fond bleu très sombre
+    
+    let mx = mouseX;
+    let my = mouseY;
+    
+    // 1. Mise à jour de la physique (Verlet)
+    for (let p of P) {
+        if (!p.is_fixed) {
+            // Interaction clic gauche (Attraper un point)
+            if (mouseIsPressed && mouseButton === LEFT && dist(p.x, p.y, mx, my) < 30) {
+                p.x = mx;
+                p.y = my;
+            }
+            
+            let vx = (p.x - p.old_x) * 0.99;
+            let vy = (p.y - p.old_y) * 0.99;
+            p.old_x = p.x;
+            p.old_y = p.y;
+            p.x += vx;
+            p.y += vy + 0.4; // Gravité
+        }
+    }
+
+    // 2. Résolution des contraintes (6 itérations)
+    for (let iter = 0; iter < 6; iter++) {
+        for (let sk of S) {
+            if (sk[2]) {
+                let p1 = P[sk[0]];
+                let p2 = P[sk[1]];
+                let dx = p2.x - p1.x;
+                let dy = p2.y - p1.y;
+                let d = Math.sqrt(dx * dx + dy * dy) || 0.1;
+                
+                // Option pour couper les liens (Clic droit ou CTRL+Clic)
+                if (d > 100 || (mouseIsPressed && (mouseButton === RIGHT || keyIsDown(CONTROL)) && dist((p1.x + p2.x)/2, (p1.y + p2.y)/2, mx, my) < 15)) {
+                    sk[2] = false;
+                    continue;
+                }
+                
+                let f = (20 - d) / d * 0.5;
+                if (!p1.is_fixed) {
+                    p1.x -= dx * f;
+                    p1.y -= dy * f;
+                }
+                if (!p2.is_fixed) {
+                    p2.x += dx * f;
+                    p2.y += dy * f;
+                }
+            }
+        }
+    }
+
+    // 3. Dessin des lignes
+    stroke(0, 255, 150); 
+    strokeWeight(2);
+    for (let sk of S) {
+        if (sk[2]) {
+            let p1 = P[sk[0]];
+            let p2 = P[sk[1]];
+            line(p1.x, p1.y, p2.x, p2.y);
+        }
+    }
+}
+
+// Désactiver le menu contextuel pour le clic droit
+document.oncontextmenu = function() { return false; }
+
+// Ajustement automatique de la taille du canvas si la fenêtre bouge
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
+}
+</script>
+
+</body>
+</html>
